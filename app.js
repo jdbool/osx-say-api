@@ -2,6 +2,7 @@ const config = require('./config.json');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
+const https = require('https');
 const express = require('express');
 const uniqueString = require('unique-string');
 const Lame = require('node-lame').Lame;
@@ -51,6 +52,9 @@ app.use((req, res) => {
   });
 });
 
-app.listen(config.port, () => {
-  console.log(`HTTP listening on port ${config.port}`);
+https.createServer({
+  key: fs.readFileSync(path.join(config.certDirectory, 'privkey.pem')),
+  cert: fs.readFileSync((path.join(config.certDirectory, 'fullchain.pem'))
+}, app).listen(config.port, function () {
+  console.log(`HTTPS listening on port ${config.port}`);
 });
