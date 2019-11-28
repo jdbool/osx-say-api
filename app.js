@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
   const id = uniqueString();
   const tempFile = soundPath(id);
   
-  const command = `say -v ${JSON.stringify(req.query.voice)} -o ${JSON.stringify(tempFile)} --file-format=WAVE ${JSON.stringify(req.query.text)}`;
+  const command = `say -v ${JSON.stringify(req.query.voice)} -o ${JSON.stringify(tempFile)} --data-format=LEF32@28400 ${JSON.stringify(req.query.text)}`;
   console.log(command);
   exec(command, (error, stdout, stderr) => {
     if (error) {
