@@ -10,7 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "send": "^0.17.1",
     "unique-string": "^2.0.0"
   }
 }

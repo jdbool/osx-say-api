@@ -3,7 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
 const express = require('express');
-const send = require('send');
 const uniqueString = require('unique-string');
 
 const soundPath = id => path.join(__dirname, 'sounds', id + '.aiff');
@@ -29,22 +28,17 @@ app.get('/', (req, res) => {
       return;
     }
 
-    console.log('stdout: ' + stdout);
-
-    try {
-      console.log('Sending file');
-      res.set('Content-Type', 'audio/aiff');
-      send(req, tempFile).pipe(res);
-    } catch (err) {
-      res.status(500).end('Could not send file');
-    }
-
-    fs.unlink(tempFile, err => {
+    res.sendFile(tempFile, err => {
       if (err) {
-        console.error(err);
-      } else {
-        console.log('File deleted');
+        res.status(500).end('Could not send file');
       }
+      fs.unlink(tempFile, err => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log('File deleted');
+        }
+      });
     });
   });
 });
