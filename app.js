@@ -35,7 +35,11 @@ app.get('/', (req, res) => {
       res.status(500).end('Could not send file');
     }
 
-    fs.unlink(tempFile);
+    fs.unlink(tempFile, err => {
+      if (err) {
+        console.error(err);
+      }
+    });
   });
 });
 
