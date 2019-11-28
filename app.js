@@ -4,6 +4,7 @@ const fs = require('fs');
 const { exec } = require('child_process');
 const express = require('express');
 const uniqueString = require('unique-string');
+const Lame = require('node-lame').Lame;
 
 const soundPath = id => path.join(__dirname, 'sounds', id + '.wav');
 
