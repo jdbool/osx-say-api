@@ -54,9 +54,15 @@ app.use((req, res) => {
   });
 });
 
-https.createServer({
-  key: fs.readFileSync(path.join(config.certDirectory, 'privkey.pem')),
-  cert: fs.readFileSync(path.join(config.certDirectory, 'fullchain.pem'))
-}, app).listen(config.port, function () {
-  console.log(`HTTPS listening on port ${config.port}`);
-});
+if (config.https) {
+  https.createServer({
+    key: fs.readFileSync(path.join(config.certDirectory, 'privkey.pem')),
+    cert: fs.readFileSync(path.join(config.certDirectory, 'fullchain.pem'))
+  }, app).listen(config.port, () => {
+    console.log(`HTTPS listening on port ${config.port}`);
+  });
+} else {
+  app.listen(config.port, () => {
+    console.log(`HTTP listening on port ${config.port}`);
+  });
+}
