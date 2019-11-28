@@ -5,7 +5,7 @@ const { exec } = require('child_process');
 const express = require('express');
 const uniqueString = require('unique-string');
 
-const soundPath = id => path.join(__dirname, 'sounds', id + '.aiff');
+const soundPath = id => path.join(__dirname, 'sounds', id + '.wav');
 
 const app = express();
 
@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
   const id = uniqueString();
   const tempFile = soundPath(id);
   
-  const command = `say -v ${JSON.stringify(req.query.voice)} -o ${JSON.stringify(tempFile)} ${JSON.stringify(req.query.text)}`;
+  const command = `say -v ${JSON.stringify(req.query.voice)} -o ${JSON.stringify(tempFile)} --file-format=WAVE ${JSON.stringify(req.query.text)}`;
   console.log(command);
   exec(command, (error, stdout, stderr) => {
     if (error) {
