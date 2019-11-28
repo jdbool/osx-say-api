@@ -4,12 +4,16 @@ const fs = require('fs');
 const { exec } = require('child_process');
 const https = require('https');
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const uniqueString = require('unique-string');
 const Lame = require('node-lame').Lame;
 
-const soundPath = id => path.join(__dirname, 'sounds', id + '.wav');
-
 const app = express();
+
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100
+}));
 
 app.use((req, res) => {
   if (req.query.password !== config.password)
@@ -20,7 +24,7 @@ app.use((req, res) => {
     req.query.voice = 'Alex';
 
   const id = uniqueString();
-  const tempFile = soundPath(id);
+  const tempFile = path.join(__dirname, 'sounds', id + '.wav');
 
   const command = `say -v ${JSON.stringify(req.query.voice)} -o ${JSON.stringify(tempFile)} --data-format=LEF32@28400 ${JSON.stringify(req.query.text)}`;
   console.log(command);
@@ -40,15 +44,13 @@ app.use((req, res) => {
     res.set('Content-Type', 'audio/mpeg');
     res.end(encoder.getBuffer());
 
-    setTimeout(() => {
-      fs.unlink(tempFile, err => {
-        if (err) {
-          console.error(err);
-        } else {
-          console.log('File deleted');
-        }
-      });
-    }, 2000);
+    fs.unlink(tempFile, err => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log('File deleted');
+      }
+    });
   });
 });
 
