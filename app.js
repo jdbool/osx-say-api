@@ -1,4 +1,4 @@
-const port = 3050;
+const config = require('./config.json');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
@@ -11,6 +11,8 @@ const soundPath = id => path.join(__dirname, 'sounds', id + '.aiff');
 const app = express();
 
 app.get('/', (req, res) => {
+  if (req.query.password !== config.password)
+    return res.status(401).end('Invalid password argument');
   if (!req.query.text)
     return res.status(400).end('Missing text argument');
   if (!req.query.voice)
@@ -41,6 +43,6 @@ app.use((req, res) => {
   res.status(404).end('Not found');
 });
 
-app.listen(port, () => {
-  console.log(`HTTP listening on port ${port}`);
+app.listen(config.port, () => {
+  console.log(`HTTP listening on port ${config.port}`);
 });
