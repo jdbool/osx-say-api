@@ -1,0 +1,16 @@
+{
+  "name": "osx-say-api",
+  "version": "1.0.0",
+  "description": "Used to get Mac OS speech over HTTP.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "jdbool",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "send": "^0.17.1",
+    "unique-string": "^2.0.0"
+  }
+}
