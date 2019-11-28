@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
+    "node-lame": "^1.2.0",
     "unique-string": "^2.0.0"
   }
 }

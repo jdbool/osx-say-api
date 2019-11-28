@@ -19,19 +19,26 @@ app.use((req, res) => {
 
   const id = uniqueString();
   const tempFile = soundPath(id);
-  
+
   const command = `say -v ${JSON.stringify(req.query.voice)} -o ${JSON.stringify(tempFile)} --data-format=LEF32@28400 ${JSON.stringify(req.query.text)}`;
   console.log(command);
-  exec(command, (error, stdout, stderr) => {
+  exec(command, async (error, stdout, stderr) => {
     if (error) {
       res.status(500).end('Could not generate speech file');
       return;
     }
 
-    res.sendFile(tempFile, err => {
-      if (err) {
-        res.status(500).end('Could not send file');
-      }
+    const encoder = new Lame({
+      output: 'buffer',
+      bitrate: 192
+    }).setFile(tempFile);
+
+    await encoder.encode();
+
+    res.set('Content-Type', 'audio/mpeg');
+    res.end(encoder.getBuffer());
+
+    setTimeout(() => {
       fs.unlink(tempFile, err => {
         if (err) {
           console.error(err);
@@ -39,7 +46,7 @@ app.use((req, res) => {
           console.log('File deleted');
         }
       });
-    });
+    }, 2000);
   });
 });
 
