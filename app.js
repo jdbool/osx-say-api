@@ -39,16 +39,22 @@ app.use((req, res) => {
       bitrate: config.bitrate
     }).setFile(tempFile);
 
+    console.log('Encoding...');
+
     await encoder.encode();
+
+    console.log('Sending...');
 
     res.set('Content-Type', 'audio/mpeg');
     res.end(encoder.getBuffer());
+
+    console.log('Deleting file...');
 
     fs.unlink(tempFile, err => {
       if (err) {
         console.error(err);
       } else {
-        console.log('File deleted');
+        console.log('All done');
       }
     });
   });
