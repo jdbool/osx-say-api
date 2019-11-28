@@ -29,7 +29,10 @@ app.get('/', (req, res) => {
       return;
     }
 
+    console.log('stdout: ' + stdout);
+
     try {
+      console.log('Sending file');
       send(req, tempFile).pipe(res);
     } catch (err) {
       res.status(500).end('Could not send file');
@@ -38,6 +41,8 @@ app.get('/', (req, res) => {
     fs.unlink(tempFile, err => {
       if (err) {
         console.error(err);
+      } else {
+        console.log('File deleted');
       }
     });
   });
