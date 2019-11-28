@@ -9,7 +9,7 @@ const soundPath = id => path.join(__dirname, 'sounds', id + '.wav');
 
 const app = express();
 
-app.get('/', (req, res) => {
+app.use((req, res) => {
   if (req.query.password !== config.password)
     return res.status(401).end('Invalid password argument');
   if (!req.query.text)
