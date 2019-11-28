@@ -27,7 +27,7 @@ app.use((req, res) => {
   const tempFile = path.join(__dirname, 'sounds', id + '.wav');
 
   const command = `say -v ${JSON.stringify(req.query.voice)} -o ${JSON.stringify(tempFile)} --data-format=LEF32@28400 ${JSON.stringify(req.query.text)}`;
-  console.log(command);
+  console.log('\t' + command);
   exec(command, async (error, stdout, stderr) => {
     if (error) {
       res.status(500).end('Could not generate speech file');
