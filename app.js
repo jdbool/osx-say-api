@@ -32,7 +32,7 @@ app.use((req, res) => {
 
     const encoder = new Lame({
       output: 'buffer',
-      bitrate: 96
+      bitrate: 64
     }).setFile(tempFile);
 
     await encoder.encode();
