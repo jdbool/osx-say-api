@@ -21,6 +21,8 @@ You need to create this file yourself.
   // Whether to do HTTPS over HTTP
   "https": true,
   // Directory of letsencrypt certificates
-  "certDirectory": "/etc/letsencrypt/live/.../"
+  "certDirectory": "/etc/letsencrypt/live/.../",
+  // MP3 output bitrate (kbit/s)
+  "bitrate": 64
 }
 ```
