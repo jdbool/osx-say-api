@@ -43,10 +43,6 @@ app.get('/', (req, res) => {
   });
 });
 
-app.use((req, res) => {
-  res.status(404).end('Not found');
-});
-
 app.listen(config.port, () => {
   console.log(`HTTP listening on port ${config.port}`);
 });
