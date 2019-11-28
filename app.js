@@ -33,6 +33,7 @@ app.get('/', (req, res) => {
 
     try {
       console.log('Sending file');
+      res.set('Content-Type', 'audio/aiff');
       send(req, tempFile).pipe(res);
     } catch (err) {
       res.status(500).end('Could not send file');
