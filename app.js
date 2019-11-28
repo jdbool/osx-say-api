@@ -54,7 +54,7 @@ app.use((req, res) => {
 
 https.createServer({
   key: fs.readFileSync(path.join(config.certDirectory, 'privkey.pem')),
-  cert: fs.readFileSync((path.join(config.certDirectory, 'fullchain.pem'))
+  cert: fs.readFileSync(path.join(config.certDirectory, 'fullchain.pem'))
 }, app).listen(config.port, function () {
   console.log(`HTTPS listening on port ${config.port}`);
 });
