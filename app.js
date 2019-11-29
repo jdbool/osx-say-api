@@ -6,7 +6,7 @@ const https = require('https');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const uniqueString = require('unique-string');
-const Lame = require('node-lame').Lame;
+const { Lame } = require('node-lame');
 
 const app = express();
 
