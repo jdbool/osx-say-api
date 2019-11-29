@@ -15,6 +15,8 @@ app.use(rateLimit({
   max: 100
 }));
 
+const sanitize = str => str.replace(/\$/g, '\\$').replace(/"/g, '\\"');
+
 app.use((req, res) => {
   if (req.query.password !== config.password)
     return res.status(401).end('Invalid password argument');
@@ -27,7 +29,7 @@ app.use((req, res) => {
   const wavFile = path.join(__dirname, 'sounds', id + '.wav');
   const mp3File = path.join(__dirname, 'sounds', id + '.mp3');
 
-  const command = `say -v ${JSON.stringify(req.query.voice)} -o ${JSON.stringify(wavFile)} --data-format=LEF32@28400 "${req.query.text.replace(/\$/g, '\\$').replace(/"/g, '\\"')}"`;
+  const command = `say -v "${sanitize(req.query.voice)}" -o "${wavFile}" --data-format=LEF32@28400 "${sanitize(req.query.text)}"`;
   console.log('\t' + command);
   exec(command, async (error, stdout, stderr) => {
     if (error) {
