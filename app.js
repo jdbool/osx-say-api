@@ -27,7 +27,7 @@ app.use((req, res) => {
   const wavFile = path.join(__dirname, 'sounds', id + '.wav');
   const mp3File = path.join(__dirname, 'sounds', id + '.mp3');
 
-  const command = `say -v ${JSON.stringify(req.query.voice)} -o ${JSON.stringify(wavFile)} --data-format=LEF32@28400 ${JSON.stringify(req.query.text.replace('$', '\\$'))}`;
+  const command = `say -v ${JSON.stringify(req.query.voice)} -o ${JSON.stringify(wavFile)} --data-format=LEF32@28400 "${req.query.text.replace('$', '\\$').replace('"', '\"')}"`;
   console.log('\t' + command);
   exec(command, async (error, stdout, stderr) => {
     if (error) {
