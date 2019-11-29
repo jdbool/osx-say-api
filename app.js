@@ -24,20 +24,22 @@ app.use((req, res) => {
     req.query.voice = 'Alex';
 
   const id = uniqueString();
-  const tempFile = path.join(__dirname, 'sounds', id + '.wav');
+  const wavFile = path.join(__dirname, 'sounds', id + '.wav');
+  const mp3File = path.join(__dirname, 'sounds', id + '.mp3');
 
-  const command = `say -v ${JSON.stringify(req.query.voice)} -o ${JSON.stringify(tempFile)} --data-format=LEF32@28400 ${JSON.stringify(req.query.text)}`;
+  const command = `say -v ${JSON.stringify(req.query.voice)} -o ${JSON.stringify(wavFile)} --data-format=LEF32@28400 ${JSON.stringify(req.query.text)}`;
   console.log('\t' + command);
   exec(command, async (error, stdout, stderr) => {
     if (error) {
       res.status(500).end('Could not generate speech file');
+      console.log('Say failed');
       return;
     }
 
     const encoder = new Lame({
-      output: 'buffer',
+      output: mp3File,
       bitrate: config.bitrate
-    }).setFile(tempFile);
+    }).setFile(wavFile);
 
     console.log('Encoding...');
 
@@ -46,16 +48,28 @@ app.use((req, res) => {
     console.log('Sending...');
 
     res.set('Content-Type', 'audio/mpeg');
-    res.end(encoder.getBuffer());
-
-    console.log('Deleting file...');
-
-    fs.unlink(tempFile, err => {
+    res.sendFile(mp3File, err => {
       if (err) {
-        console.error(err);
-      } else {
-        console.log('All done');
+        console.log('Could not send MP3');
       }
+
+      console.log('Deleting files...');
+  
+      fs.unlink(wavFile, err => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log('Deleted wav');
+        }
+      });
+
+      fs.unlink(mp3File, err => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log('Deleted mp3');
+        }
+      });
     });
   });
 });
