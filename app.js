@@ -1,12 +1,13 @@
 const config = require('./config.json');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const { exec } = require('child_process');
 const https = require('https');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
-const uniqueString = require('unique-string');
 const { Lame } = require('node-lame');
+const fileExists = require('file-exists');
 
 const app = express();
 
@@ -17,7 +18,7 @@ app.use(rateLimit({
 
 const sanitize = str => str.replace(/\$/g, '\\$').replace(/"/g, '\\"');
 
-app.use((req, res) => {
+app.use(async (req, res) => {
   if (req.query.password !== config.password)
     return res.status(401).end('Invalid password argument');
   if (!req.query.text)
@@ -25,9 +26,20 @@ app.use((req, res) => {
   if (!req.query.voice)
     req.query.voice = 'Alex';
 
-  const id = uniqueString();
-  const wavFile = path.join(__dirname, 'sounds', id + '.wav');
-  const mp3File = path.join(__dirname, 'sounds', id + '.mp3');
+  const hash = crypto.createHash('sha256').update(`${req.query.voice};${req.query.text}`).digest('hex');
+  const mp3File = path.join(__dirname, 'sounds', hash + '.mp3');
+
+  if (await fileExists(mp3File)) {
+    console.log('Sending cached voice');
+    res.sendFile(mp3File, err => {
+      if (err) {
+        console.log('Could not send MP3');
+      }
+    });
+    return;
+  }
+
+  const wavFile = path.join(__dirname, 'sounds', hash + '.wav');
 
   const command = `say -v "${sanitize(req.query.voice)}" -o "${wavFile}" --data-format=LEF32@28400 "${sanitize(req.query.text)}"`;
   console.log('\t' + command);
@@ -62,14 +74,6 @@ app.use((req, res) => {
           console.error(err);
         } else {
           console.log('Deleted wav');
-        }
-      });
-
-      fs.unlink(mp3File, err => {
-        if (err) {
-          console.error(err);
-        } else {
-          console.log('Deleted mp3');
         }
       });
     });
