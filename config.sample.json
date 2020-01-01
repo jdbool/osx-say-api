@@ -1,0 +1,7 @@
+{
+  "port": 8090,
+  "password": "yerbamateisgood",
+  "https": true,
+  "certDirectory": "/etc/letsencrypt/live/mac.example.com/",
+  "bitrate": 64
+}
