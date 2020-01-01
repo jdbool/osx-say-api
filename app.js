@@ -8,13 +8,18 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const { Lame } = require('node-lame');
 const fileExists = require('file-exists');
+const morgan = require('morgan');
 
 const app = express();
+
+const validBitrates = [8, 16, 24, 32, 40, 48, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320];
 
 app.use(rateLimit({
 	windowMs: 15 * 60 * 1000,
 	max: 100
 }));
+
+app.use(morgan('short'));
 
 const sanitize = str => str.replace(/\$/g, '\\$').replace(/"/g, '\\"');
 
@@ -26,7 +31,11 @@ app.use(async (req, res) => {
 	if (!req.query.voice)
 		req.query.voice = 'Alex';
 
-	const hash = crypto.createHash('sha256').update(`${req.query.voice};${req.query.text}`).digest('hex');
+	const bitrate = Number(req.query.bitrate || config.bitrate);
+	if (!validBitrates.includes(bitrate))
+		return res.status(400).end('Invalid bitrate ' + bitrate);
+
+	const hash = crypto.createHash('sha256').update(`${bitrate};${req.query.voice};${req.query.text}`).digest('hex');
 	const mp3File = path.join(__dirname, 'sounds', hash + '.mp3');
 
 	if (await fileExists(mp3File)) {
@@ -42,22 +51,28 @@ app.use(async (req, res) => {
 	const wavFile = path.join(__dirname, 'sounds', hash + '.wav');
 
 	const command = `say -v "${sanitize(req.query.voice)}" -o "${wavFile}" --data-format=LEF32@28400 "${sanitize(req.query.text)}"`;
-	console.log('\t' + command);
-	exec(command, async (error, stdout, stderr) => {
+	exec(command, async error => {
 		if (error) {
 			res.status(500).end('Could not generate speech file');
 			console.log('Say failed');
 			return;
 		}
 
-		const encoder = new Lame({
-			output: mp3File,
-			bitrate: config.bitrate
-		}).setFile(wavFile);
+		try {
+			const encoder = new Lame({
+				output: mp3File,
+				bitrate: bitrate
+			}).setFile(wavFile);
 
-		console.log('Encoding...');
-
-		await encoder.encode();
+			console.log('Encoding...');
+			await encoder.encode();
+		} catch (err) {
+			console.log('Lame failed');
+			fs.unlink(wavFile, () => {
+				res.status(500).end('Could not encode speech file');
+			});
+			return;
+		}
 
 		console.log('Sending...');
 
